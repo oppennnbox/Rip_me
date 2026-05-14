@@ -18,24 +18,26 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #1a1a1a);
-            padding: 16px;
+            padding: 12px 8px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
+            max-width: 100vw;
+            overflow-x: hidden;
         }
 
         .header {
             text-align: center;
             font-weight: 700;
-            font-size: 20px;
-            padding: 6px 0;
+            font-size: 18px;
+            padding: 4px 0;
         }
 
         .card {
             background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 14px;
+            padding: 14px 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -43,7 +45,7 @@
 
         label {
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--tg-theme-hint-color, #888888);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -51,17 +53,18 @@
 
         textarea {
             width: 100%;
-            min-height: 130px;
+            min-height: 140px;
             border: 2px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 15px;
-            line-height: 1.5;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.4;
             background: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #1a1a1a);
             resize: vertical;
             outline: none;
             transition: border-color 0.2s;
+            font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
         }
 
         textarea:focus {
@@ -71,53 +74,73 @@
         .info-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
             flex-wrap: wrap;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--tg-theme-hint-color, #888888);
         }
 
         .badge {
             background: var(--tg-theme-button-color, #3390ec);
             color: var(--tg-theme-button-text-color, #ffffff);
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
             white-space: nowrap;
+        }
+
+        .badge.green {
+            background: #4caf50;
         }
 
         .table-wrapper {
             overflow-x: auto;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid var(--tg-theme-hint-color, #dddddd);
             background: var(--tg-theme-bg-color, #ffffff);
-            max-height: 350px;
+            max-height: 300px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 12px;
             white-space: nowrap;
+            min-width: max-content;
         }
 
         th {
             background: var(--tg-theme-button-color, #3390ec);
             color: var(--tg-theme-button-text-color, #ffffff);
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 600;
             position: sticky;
             top: 0;
             z-index: 2;
+            font-size: 11px;
         }
 
         td {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid var(--tg-theme-hint-color, #eeeeee);
             color: var(--tg-theme-text-color, #1a1a1a);
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        td.formula-cell {
+            background: #fff9e6;
+            font-style: italic;
+        }
+
+        td.calculated-cell {
+            background: #e8f5e9;
+            font-weight: 600;
         }
 
         tr:last-child td {
@@ -126,9 +149,26 @@
 
         .empty-table {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px 16px;
             color: var(--tg-theme-hint-color, #aaaaaa);
-            font-size: 14px;
+            font-size: 13px;
+        }
+
+        .help-box {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #1565c0;
+            margin-top: 6px;
+        }
+
+        .help-box strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
         }
 
         button {
@@ -139,10 +179,11 @@
             background: var(--tg-theme-button-color, #3390ec);
             color: var(--tg-theme-button-text-color, #ffffff);
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             transition: opacity 0.2s;
             letter-spacing: 0.3px;
+            -webkit-appearance: none;
         }
 
         button:active {
@@ -156,8 +197,9 @@
 
         .footer-note {
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--tg-theme-hint-color, #aaaaaa);
+            padding-bottom: 10px;
         }
     </style>
 </head>
@@ -166,25 +208,41 @@
     <div class="header">📊 Текст в Excel</div>
 
     <div class="card">
-        <label for="textInput">Вставьте текст</label>
-        <textarea id="textInput" placeholder="Вставьте сюда любой текст...
-Например:
-Имя, Возраст, Город
-Анна, 25, Москва
-Пётр, 30, Питер
+        <label for="textInput">📝 Вставьте текст</label>
+        <textarea id="textInput" placeholder="Пример 1 (CSV с кавычками):
+&quot;Фамилия Имя Отчество&quot;,Возраст,Город
+&quot;Иванов Иван Иванович&quot;,25,&quot;Санкт-Петербург&quot;
 
-Или через табуляцию / точку с запятой — определится автоматически"></textarea>
+Пример 2 (табуляция):
+Сумма	=СУММ(B2:B4)
+100	=СУММ(B2:B4)
+200	=СУММ(B2:B4)
+300	=СУММ(B2:B4)
+
+Пример 3 (формулы):
+Товар	Цена	Кол-во	Сумма
+Хлеб	50	2	=B2*C2
+Молоко	80	1	=B3*C3
+Итого	=СУММ(B2:B3)	=СУММ(C2:C3)	=СУММ(D2:D3)"></textarea>
 
         <div class="info-row" id="infoRow">
-            <span>📋 Определено:</span>
+            <span>📋</span>
             <span class="badge" id="delimiterBadge">—</span>
             <span class="badge" id="columnsBadge">—</span>
-            <span id="rowsCount" style="margin-left: auto;">строк: 0</span>
+            <span class="badge green" id="formulaBadge" style="display:none;">🔢 формулы</span>
+            <span id="rowsCount" style="margin-left: auto; font-size: 12px;">строк: 0</span>
+        </div>
+
+        <div class="help-box">
+            <strong>💡 Как это работает:</strong>
+            • Разделители: запятая, табуляция, точка с запятой<br>
+            • Текст с пробелами — берите в кавычки: <code>"пять слов в ячейке"</code><br>
+            • Формулы: <code>=СУММ(B2:B4)</code>, <code>=A2*B2</code>, <code>=СРЗНАЧ(A1:A5)</code>
         </div>
     </div>
 
-    <div class="card" style="padding: 12px;">
-        <label>Предпросмотр таблицы</label>
+    <div class="card" style="padding: 10px;">
+        <label>👁 Предпросмотр таблицы</label>
         <div class="table-wrapper" id="tableWrapper">
             <div class="empty-table" id="emptyPlaceholder">
                 Введите текст выше — таблица появится здесь
@@ -197,7 +255,7 @@
     </div>
 
     <button id="downloadBtn" disabled>📥 Скачать Excel-файл</button>
-    <div class="footer-note">Файл можно отправить в чат</div>
+    <div class="footer-note">Файл сохраняет формулы для Excel</div>
 
     <script>
         (function() {
@@ -210,6 +268,7 @@
             const textInput = document.getElementById('textInput');
             const delimiterBadge = document.getElementById('delimiterBadge');
             const columnsBadge = document.getElementById('columnsBadge');
+            const formulaBadge = document.getElementById('formulaBadge');
             const rowsCount = document.getElementById('rowsCount');
             const tableWrapper = document.getElementById('tableWrapper');
             const previewTable = document.getElementById('previewTable');
@@ -219,50 +278,81 @@
             const downloadBtn = document.getElementById('downloadBtn');
 
             // Текущие данные таблицы
-            let currentTableData = [];
+            let currentTableData = []; // сырые данные (могут содержать формулы)
+            let currentCalculatedData = []; // вычисленные данные (для отображения)
             let currentColumnCount = 0;
+            let hasFormulas = false;
 
-            // Разделители для анализа (по приоритету)
-            const delimiterCandidates = [
-                { chars: ['\t'], name: 'табуляция' },
-                { chars: [';'], name: 'точка с запятой' },
-                { chars: [','], name: 'запятая' },
-                { chars: ['|'], name: 'вертикальная черта' },
-                { chars: [' — '], name: 'длинное тире' },
-                { chars: [' - '], name: 'тире с пробелами' },
-                { chars: ['  '], name: 'двойной пробел' },
-                { chars: [' '], name: 'пробел' },
-            ];
+            /**
+             * Парсинг строки с учётом кавычек (CSV-стандарт)
+             * "текст с пробелами" — одна ячейка
+             * текст без кавычек — как обычно
+             */
+            function parseCSVLine(line, delimiter) {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
 
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    const nextChar = line[i + 1];
+
+                    if (char === '"') {
+                        if (inQuotes && nextChar === '"') {
+                            // Экранированная кавычка ""
+                            current += '"';
+                            i++; // пропускаем следующую кавычку
+                        } else {
+                            // Переключаем режим кавычек
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === delimiter && !inQuotes) {
+                        // Разделитель вне кавычек — конец ячейки
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                // Последняя ячейка
+                result.push(current.trim());
+
+                // Убираем обрамляющие кавычки у каждой ячейки
+                return result.map(cell => {
+                    cell = cell.trim();
+                    if (cell.startsWith('"') && cell.endsWith('"') && cell.length >= 2) {
+                        cell = cell.substring(1, cell.length - 1);
+                    }
+                    return cell;
+                });
+            }
+
+            /**
+             * Определение разделителя в тексте
+             */
             function detectDelimiter(text) {
                 const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-                if (lines.length === 0) return null;
+                if (lines.length === 0) return { delimiter: null, columns: 1 };
 
-                let bestDelimiter = null;
-                let bestScore = 0;
-                let bestColumnCount = 1;
+                const candidates = [
+                    { char: '\t', name: 'табуляция' },
+                    { char: ';', name: 'точка с запятой' },
+                    { char: ',', name: 'запятая' },
+                ];
 
-                for (const candidate of delimiterCandidates) {
-                    let totalParts = 0;
+                let best = { delimiter: null, columns: 1, score: -1 };
+
+                for (const candidate of candidates) {
+                    let totalCells = 0;
                     let linesWithDelimiter = 0;
-                    let consistentParts = 0;
-                    let partCounts = [];
+                    const partCounts = [];
 
                     for (const line of lines) {
-                        let parts = null;
-                        // Пытаемся разделить строку каждым символом-кандидатом
-                        let tempLine = line;
-                        let found = false;
-                        for (const ch of candidate.chars) {
-                            if (tempLine.includes(ch)) {
-                                parts = tempLine.split(ch);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found && parts && parts.length >= 2) {
+                        const parts = parseCSVLine(line, candidate.char);
+                        const nonEmpty = parts.filter(p => p.length > 0);
+                        if (parts.length >= 2) {
                             linesWithDelimiter++;
-                            totalParts += parts.length;
+                            totalCells += parts.length;
                             partCounts.push(parts.length);
                         } else {
                             partCounts.push(1);
@@ -271,7 +361,7 @@
 
                     if (linesWithDelimiter === 0) continue;
 
-                    // Ищем самый частый размер разбиения
+                    // Частотность количества колонок
                     const freqMap = {};
                     partCounts.forEach(p => freqMap[p] = (freqMap[p] || 0) + 1);
                     let mostFreqParts = 1;
@@ -283,54 +373,236 @@
                         }
                     }
 
-                    // Оценка: чем больше строк с разделителем и чем стабильнее количество частей
                     const coverage = linesWithDelimiter / lines.length;
                     const consistency = mostFreqCount / lines.length;
-                    const avgParts = totalParts / Math.max(1, linesWithDelimiter);
-                    const score = coverage * 0.5 + consistency * 0.5 + (avgParts > 1 ? 0.3 : 0);
+                    const score = coverage * 0.6 + consistency * 0.4;
 
-                    if (score > bestScore && mostFreqParts >= 2) {
-                        bestScore = score;
-                        bestDelimiter = candidate.chars[0]; // Берём первый символ как основной
-                        bestColumnCount = mostFreqParts;
+                    if (score > best.score && mostFreqParts >= 2) {
+                        best = {
+                            delimiter: candidate.char,
+                            columns: mostFreqParts,
+                            score: score,
+                            name: candidate.name
+                        };
                     }
                 }
 
-                if (!bestDelimiter) {
-                    bestDelimiter = null;
-                    bestColumnCount = 1;
-                }
-
-                return { delimiter: bestDelimiter, columns: bestColumnCount };
+                return best;
             }
 
+            /**
+             * Проверка, является ли строка формулой Excel
+             */
+            function isFormula(cell) {
+                return typeof cell === 'string' && cell.startsWith('=') && cell.length > 1;
+            }
+
+            /**
+             * Получение буквенного обозначения колонки (A, B, ..., Z, AA, AB...)
+             */
+            function columnToLetter(col) {
+                let letter = '';
+                while (col >= 0) {
+                    letter = String.fromCharCode((col % 26) + 65) + letter;
+                    col = Math.floor(col / 26) - 1;
+                }
+                return letter;
+            }
+
+            /**
+             * Парсинг ссылки на ячейку вида A1, B2
+             */
+            function parseCellRef(ref) {
+                const match = ref.match(/^([A-Z]+)(\d+)$/);
+                if (!match) return null;
+
+                const colStr = match[1];
+                const rowNum = parseInt(match[2]) - 1; // 0-based
+
+                let colNum = 0;
+                for (let i = 0; i < colStr.length; i++) {
+                    colNum = colNum * 26 + (colStr.charCodeAt(i) - 65);
+                }
+
+                return { row: rowNum, col: colNum };
+            }
+
+            /**
+             * Получение числового значения из ячейки (для расчётов)
+             */
+            function getNumericValue(cell, data, calculatedData) {
+                if (cell === undefined || cell === null || cell === '') return 0;
+
+                // Если это формула — берём вычисленное значение
+                if (isFormula(cell)) {
+                    // Ищем в calculatedData
+                    // Но сначала попробуем просто распарсить
+                    const num = parseFloat(cell);
+                    return isNaN(num) ? 0 : num;
+                }
+
+                const num = parseFloat(cell);
+                return isNaN(num) ? 0 : num;
+            }
+
+            /**
+             * Разрешение ссылки на ячейку
+             */
+            function resolveCellRef(ref, data) {
+                const parsed = parseCellRef(ref);
+                if (!parsed) return null;
+
+                if (parsed.row < 0 || parsed.row >= data.length) return '';
+                if (parsed.col < 0 || parsed.col >= (data[parsed.row]?.length || 0)) return '';
+
+                return data[parsed.row][parsed.col];
+            }
+
+            /**
+             * Вычисление формулы Excel
+             * Поддерживает: СУММ, СРЗНАЧ, МИН, МАКС, +, -, *, /
+             */
+            function evaluateFormula(formula, data, calculatedData, currentRow) {
+                if (!formula.startsWith('=')) return formula;
+
+                const expr = formula.substring(1).trim().toUpperCase();
+
+                // Функция СУММ(диапазон)
+                const sumMatch = expr.match(/^СУММ\(([A-Z]+\d+):([A-Z]+\d+)\)$/);
+                if (sumMatch) {
+                    const start = parseCellRef(sumMatch[1]);
+                    const end = parseCellRef(sumMatch[2]);
+                    if (start && end) {
+                        let sum = 0;
+                        for (let r = start.row; r <= end.row; r++) {
+                            for (let c = start.col; c <= end.col; c++) {
+                                if (r < data.length && c < (data[r]?.length || 0)) {
+                                    sum += getNumericValue(data[r][c], data, calculatedData);
+                                }
+                            }
+                        }
+                        return sum;
+                    }
+                }
+
+                // Функция СРЗНАЧ(диапазон)
+                const avgMatch = expr.match(/^СРЗНАЧ\(([A-Z]+\d+):([A-Z]+\d+)\)$/);
+                if (avgMatch) {
+                    const start = parseCellRef(avgMatch[1]);
+                    const end = parseCellRef(avgMatch[2]);
+                    if (start && end) {
+                        let sum = 0;
+                        let count = 0;
+                        for (let r = start.row; r <= end.row; r++) {
+                            for (let c = start.col; c <= end.col; c++) {
+                                if (r < data.length && c < (data[r]?.length || 0)) {
+                                    sum += getNumericValue(data[r][c], data, calculatedData);
+                                    count++;
+                                }
+                            }
+                        }
+                        return count > 0 ? Math.round((sum / count) * 100) / 100 : 0;
+                    }
+                }
+
+                // Арифметические выражения с ссылками
+                let evalExpr = expr;
+                // Заменяем ссылки на ячейки их значениями
+                const cellRefs = expr.match(/[A-Z]+\d+/g);
+                if (cellRefs) {
+                    for (const ref of cellRefs) {
+                        const value = resolveCellRef(ref, data);
+                        const numValue = getNumericValue(value, data, calculatedData);
+                        evalExpr = evalExpr.replace(ref, numValue);
+                    }
+                }
+
+                // Безопасное вычисление
+                try {
+                    // Проверяем, что остались только числа и операторы
+                    if (/^[\d\s+\-*/().,]+$/.test(evalExpr)) {
+                        const result = Function('"use strict"; return (' + evalExpr + ')')();
+                        return typeof result === 'number' ? Math.round(result * 10000) / 10000 : formula;
+                    }
+                } catch (e) {
+                    // Ошибка в формуле
+                    return '#ОШИБКА';
+                }
+
+                return formula; // Если не удалось вычислить, возвращаем как есть
+            }
+
+            /**
+             * Парсинг всего текста в таблицу
+             */
             function parseTextToTable(text) {
                 const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-                if (lines.length === 0) return { data: [], columns: 0, delimiter: null };
+                if (lines.length === 0) return { data: [], calculatedData: [], columns: 0, delimiter: null, hasFormulas: false };
 
                 const detection = detectDelimiter(text);
-                const delimiter = detection ? detection.delimiter : null;
-                const columns = detection ? detection.columns : 1;
+                const delimiter = detection.delimiter;
+                const columns = detection.columns || 1;
                 const data = [];
+                let hasFormulasFlag = false;
 
                 for (const line of lines) {
                     if (delimiter) {
-                        const parts = line.split(delimiter);
-                        // Обрезаем или дополняем до нужного числа колонок
+                        const parts = parseCSVLine(line, delimiter);
+                        // Нормализуем количество колонок
                         while (parts.length < columns) parts.push('');
                         if (parts.length > columns) {
-                            parts.splice(columns);
+                            // Если больше — расширяем, но сохраняем все данные
+                            // Обновляем максимальное количество колонок
+                            detection.columns = Math.max(detection.columns, parts.length);
                         }
-                        data.push(parts.map(p => p.trim()));
+                        // Проверяем на формулы
+                        for (const part of parts) {
+                            if (isFormula(part)) hasFormulasFlag = true;
+                        }
+                        data.push(parts);
                     } else {
+                        if (isFormula(line.trim())) hasFormulasFlag = true;
                         data.push([line.trim()]);
                     }
                 }
 
-                return { data, columns, delimiter };
+                // Нормализуем все строки до максимального количества колонок
+                const maxColumns = Math.max(...data.map(row => row.length), 1);
+                for (const row of data) {
+                    while (row.length < maxColumns) row.push('');
+                }
+
+                // Вычисляем формулы
+                const calculatedData = data.map(row => [...row]);
+                if (hasFormulasFlag) {
+                    for (let r = 0; r < calculatedData.length; r++) {
+                        for (let c = 0; c < calculatedData[r].length; c++) {
+                            if (isFormula(calculatedData[r][c])) {
+                                calculatedData[r][c] = evaluateFormula(
+                                    calculatedData[r][c],
+                                    data,
+                                    calculatedData,
+                                    r
+                                );
+                            }
+                        }
+                    }
+                }
+
+                return {
+                    data: data,
+                    calculatedData: calculatedData,
+                    columns: maxColumns,
+                    delimiter: delimiter,
+                    delimiterName: detection.name || null,
+                    hasFormulas: hasFormulasFlag
+                };
             }
 
-            function renderTable(tableData, columnCount) {
+            /**
+             * Рендер таблицы
+             */
+            function renderTable(tableData, calculatedData, columnCount, hasFormulasFlag) {
                 tableHead.innerHTML = '';
                 tableBody.innerHTML = '';
 
@@ -347,84 +619,102 @@
                 const headerRow = document.createElement('tr');
                 for (let i = 0; i < columnCount; i++) {
                     const th = document.createElement('th');
-                    th.textContent = String.fromCharCode(65 + i); // A, B, C...
+                    th.textContent = columnToLetter(i);
                     headerRow.appendChild(th);
                 }
                 tableHead.appendChild(headerRow);
 
                 // Данные
-                for (const row of tableData) {
+                for (let r = 0; r < tableData.length; r++) {
                     const tr = document.createElement('tr');
-                    for (let i = 0; i < columnCount; i++) {
+                    for (let c = 0; c < columnCount; c++) {
                         const td = document.createElement('td');
-                        td.textContent = row[i] || '';
+                        const rawValue = tableData[r]?.[c] || '';
+                        const calculatedValue = calculatedData[r]?.[c] || '';
+
+                        if (isFormula(rawValue)) {
+                            td.textContent = calculatedValue;
+                            td.className = 'calculated-cell';
+                            td.title = rawValue + ' = ' + calculatedValue;
+                        } else {
+                            td.textContent = rawValue;
+                        }
                         tr.appendChild(td);
                     }
                     tableBody.appendChild(tr);
                 }
             }
 
+            /**
+             * Обновление UI
+             */
             function updateUI() {
                 const text = textInput.value;
                 const result = parseTextToTable(text);
 
                 currentTableData = result.data;
+                currentCalculatedData = result.calculatedData;
                 currentColumnCount = result.columns;
+                hasFormulas = result.hasFormulas;
 
-                // Обновляем информационные бейджи
+                // Обновляем бейджи
                 if (result.delimiter) {
-                    const delimiterNameMap = {
-                        '\t': 'табуляция',
-                        ';': 'точка с запятой',
-                        ',': 'запятая',
-                        '|': 'вертикальная черта',
-                        ' — ': 'длинное тире',
-                        ' - ': 'тире',
-                        '  ': 'двойной пробел',
-                        ' ': 'пробел',
-                    };
-                    delimiterBadge.textContent = delimiterNameMap[result.delimiter] || result.delimiter;
+                    delimiterBadge.textContent = result.delimiterName || result.delimiter;
                 } else {
-                    delimiterBadge.textContent = 'нет (одна колонка)';
+                    delimiterBadge.textContent = 'нет';
                 }
                 columnsBadge.textContent = result.columns + ' кол.';
                 rowsCount.textContent = 'строк: ' + result.data.length;
 
-                // Рендерим таблицу
-                renderTable(result.data, result.columns);
+                // Показываем/скрываем бейдж формул
+                if (hasFormulas) {
+                    formulaBadge.style.display = 'inline-block';
+                } else {
+                    formulaBadge.style.display = 'none';
+                }
 
-                // Активируем/деактивируем кнопку скачивания
+                // Рендерим таблицу
+                renderTable(result.data, result.calculatedData, result.columns, result.hasFormulas);
+
+                // Кнопка скачивания
                 downloadBtn.disabled = (result.data.length === 0);
             }
 
+            /**
+             * Скачивание Excel-файла с формулами
+             */
             function downloadExcel() {
                 if (currentTableData.length === 0) return;
 
+                const workbook = XLSX.utils.book_new();
+                
                 // Создаём массив для SheetJS
                 const sheetData = [];
-                // Заголовки
+                
+                // Заголовки колонок
                 const headers = [];
                 for (let i = 0; i < currentColumnCount; i++) {
-                    headers.push(String.fromCharCode(65 + i)); // A, B, C...
+                    headers.push(columnToLetter(i));
                 }
                 sheetData.push(headers);
 
-                // Данные
+                // Данные с формулами
                 for (const row of currentTableData) {
                     const r = [];
-                    for (let i = 0; i < currentColumnCount; i++) {
-                        r.push(row[i] || '');
+                    for (let c = 0; c < currentColumnCount; c++) {
+                        const cellValue = row[c] || '';
+                        // Если это формула — оставляем как есть для Excel
+                        r.push(cellValue);
                     }
                     sheetData.push(r);
                 }
 
-                const workbook = XLSX.utils.book_new();
                 const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
                 // Настройка ширины колонок
                 const colWidths = [];
                 for (let i = 0; i < currentColumnCount; i++) {
-                    colWidths.push({ wch: 20 });
+                    colWidths.push({ wch: 18 });
                 }
                 worksheet['!cols'] = colWidths;
 
@@ -432,24 +722,16 @@
                 XLSX.writeFile(workbook, 'таблица.xlsx');
             }
 
-            // Обработчики событий
+            // Обработчики
             textInput.addEventListener('input', updateUI);
             downloadBtn.addEventListener('click', downloadExcel);
 
-            // Инициализация
+            // Инициализация с примером
+            textInput.value = `"Фамилия Имя",Возраст,Город,"Сумма покупок"
+"Иванов Иван",25,Москва,15000
+"Петрова Анна",30,"Санкт-Петербург",22000`;
             updateUI();
-
-            // Подсказка для примера
-            textInput.value = '';
-            updateUI();
-            textInput.placeholder = `Вставьте сюда любой текст...
-Например:
-Имя, Возраст, Город
-Анна, 25, Москва
-Пётр, 30, Питер
-
-Или через табуляцию / точку с запятой — определится автоматически`;
         })();
     </script>
 </body>
-</html>
+    </html>
