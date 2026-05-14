@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Текст в Excel • Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #1a1a1a);
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .header {
+            text-align: center;
+            font-weight: 700;
+            font-size: 20px;
+            padding: 6px 0;
+        }
+
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #888888);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 130px;
+            border: 2px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 15px;
+            line-height: 1.5;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #1a1a1a);
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #888888);
+        }
+
+        .badge {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #dddddd);
+            background: var(--tg-theme-bg-color, #ffffff);
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        th {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #eeeeee);
+            color: var(--tg-theme-text-color, #1a1a1a);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-table {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">📊 Текст в Excel</div>
+
+    <div class="card">
+        <label for="textInput">Вставьте текст</label>
+        <textarea id="textInput" placeholder="Вставьте сюда любой текст...
+Например:
+Имя, Возраст, Город
+Анна, 25, Москва
+Пётр, 30, Питер
+
+Или через табуляцию / точку с запятой — определится автоматически"></textarea>
+
+        <div class="info-row" id="infoRow">
+            <span>📋 Определено:</span>
+            <span class="badge" id="delimiterBadge">—</span>
+            <span class="badge" id="columnsBadge">—</span>
+            <span id="rowsCount" style="margin-left: auto;">строк: 0</span>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 12px;">
+        <label>Предпросмотр таблицы</label>
+        <div class="table-wrapper" id="tableWrapper">
+            <div class="empty-table" id="emptyPlaceholder">
+                Введите текст выше — таблица появится здесь
+            </div>
+            <table id="previewTable" style="display: none;">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <button id="downloadBtn" disabled>📥 Скачать Excel-файл</button>
+    <div class="footer-note">Файл можно отправить в чат</div>
+
+    <script>
+        (function() {
+            // Инициализация Telegram Mini App
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+
+            // Элементы DOM
+            const textInput = document.getElementById('textInput');
+            const delimiterBadge = document.getElementById('delimiterBadge');
+            const columnsBadge = document.getElementById('columnsBadge');
+            const rowsCount = document.getElementById('rowsCount');
+            const tableWrapper = document.getElementById('tableWrapper');
+            const previewTable = document.getElementById('previewTable');
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            const emptyPlaceholder = document.getElementById('emptyPlaceholder');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            // Текущие данные таблицы
+            let currentTableData = [];
+            let currentColumnCount = 0;
+
+            // Разделители для анализа (по приоритету)
+            const delimiterCandidates = [
+                { chars: ['\t'], name: 'табуляция' },
+                { chars: [';'], name: 'точка с запятой' },
+                { chars: [','], name: 'запятая' },
+                { chars: ['|'], name: 'вертикальная черта' },
+                { chars: [' — '], name: 'длинное тире' },
+                { chars: [' - '], name: 'тире с пробелами' },
+                { chars: ['  '], name: 'двойной пробел' },
+                { chars: [' '], name: 'пробел' },
+            ];
+
+            function detectDelimiter(text) {
+                const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+                if (lines.length === 0) return null;
+
+                let bestDelimiter = null;
+                let bestScore = 0;
+                let bestColumnCount = 1;
+
+                for (const candidate of delimiterCandidates) {
+                    let totalParts = 0;
+                    let linesWithDelimiter = 0;
+                    let consistentParts = 0;
+                    let partCounts = [];
+
+                    for (const line of lines) {
+                        let parts = null;
+                        // Пытаемся разделить строку каждым символом-кандидатом
+                        let tempLine = line;
+                        let found = false;
+                        for (const ch of candidate.chars) {
+                            if (tempLine.includes(ch)) {
+                                parts = tempLine.split(ch);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found && parts && parts.length >= 2) {
+                            linesWithDelimiter++;
+                            totalParts += parts.length;
+                            partCounts.push(parts.length);
+                        } else {
+                            partCounts.push(1);
+                        }
+                    }
+
+                    if (linesWithDelimiter === 0) continue;
+
+                    // Ищем самый частый размер разбиения
+                    const freqMap = {};
+                    partCounts.forEach(p => freqMap[p] = (freqMap[p] || 0) + 1);
+                    let mostFreqParts = 1;
+                    let mostFreqCount = 0;
+                    for (const [parts, count] of Object.entries(freqMap)) {
+                        if (count > mostFreqCount) {
+                            mostFreqCount = count;
+                            mostFreqParts = parseInt(parts);
+                        }
+                    }
+
+                    // Оценка: чем больше строк с разделителем и чем стабильнее количество частей
+                    const coverage = linesWithDelimiter / lines.length;
+                    const consistency = mostFreqCount / lines.length;
+                    const avgParts = totalParts / Math.max(1, linesWithDelimiter);
+                    const score = coverage * 0.5 + consistency * 0.5 + (avgParts > 1 ? 0.3 : 0);
+
+                    if (score > bestScore && mostFreqParts >= 2) {
+                        bestScore = score;
+                        bestDelimiter = candidate.chars[0]; // Берём первый символ как основной
+                        bestColumnCount = mostFreqParts;
+                    }
+                }
+
+                if (!bestDelimiter) {
+                    bestDelimiter = null;
+                    bestColumnCount = 1;
+                }
+
+                return { delimiter: bestDelimiter, columns: bestColumnCount };
+            }
+
+            function parseTextToTable(text) {
+                const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+                if (lines.length === 0) return { data: [], columns: 0, delimiter: null };
+
+                const detection = detectDelimiter(text);
+                const delimiter = detection ? detection.delimiter : null;
+                const columns = detection ? detection.columns : 1;
+                const data = [];
+
+                for (const line of lines) {
+                    if (delimiter) {
+                        const parts = line.split(delimiter);
+                        // Обрезаем или дополняем до нужного числа колонок
+                        while (parts.length < columns) parts.push('');
+                        if (parts.length > columns) {
+                            parts.splice(columns);
+                        }
+                        data.push(parts.map(p => p.trim()));
+                    } else {
+                        data.push([line.trim()]);
+                    }
+                }
+
+                return { data, columns, delimiter };
+            }
+
+            function renderTable(tableData, columnCount) {
+                tableHead.innerHTML = '';
+                tableBody.innerHTML = '';
+
+                if (!tableData || tableData.length === 0 || columnCount === 0) {
+                    previewTable.style.display = 'none';
+                    emptyPlaceholder.style.display = 'block';
+                    return;
+                }
+
+                previewTable.style.display = 'table';
+                emptyPlaceholder.style.display = 'none';
+
+                // Заголовки колонок (A, B, C...)
+                const headerRow = document.createElement('tr');
+                for (let i = 0; i < columnCount; i++) {
+                    const th = document.createElement('th');
+                    th.textContent = String.fromCharCode(65 + i); // A, B, C...
+                    headerRow.appendChild(th);
+                }
+                tableHead.appendChild(headerRow);
+
+                // Данные
+                for (const row of tableData) {
+                    const tr = document.createElement('tr');
+                    for (let i = 0; i < columnCount; i++) {
+                        const td = document.createElement('td');
+                        td.textContent = row[i] || '';
+                        tr.appendChild(td);
+                    }
+                    tableBody.appendChild(tr);
+                }
+            }
+
+            function updateUI() {
+                const text = textInput.value;
+                const result = parseTextToTable(text);
+
+                currentTableData = result.data;
+                currentColumnCount = result.columns;
+
+                // Обновляем информационные бейджи
+                if (result.delimiter) {
+                    const delimiterNameMap = {
+                        '\t': 'табуляция',
+                        ';': 'точка с запятой',
+                        ',': 'запятая',
+                        '|': 'вертикальная черта',
+                        ' — ': 'длинное тире',
+                        ' - ': 'тире',
+                        '  ': 'двойной пробел',
+                        ' ': 'пробел',
+                    };
+                    delimiterBadge.textContent = delimiterNameMap[result.delimiter] || result.delimiter;
+                } else {
+                    delimiterBadge.textContent = 'нет (одна колонка)';
+                }
+                columnsBadge.textContent = result.columns + ' кол.';
+                rowsCount.textContent = 'строк: ' + result.data.length;
+
+                // Рендерим таблицу
+                renderTable(result.data, result.columns);
+
+                // Активируем/деактивируем кнопку скачивания
+                downloadBtn.disabled = (result.data.length === 0);
+            }
+
+            function downloadExcel() {
+                if (currentTableData.length === 0) return;
+
+                // Создаём массив для SheetJS
+                const sheetData = [];
+                // Заголовки
+                const headers = [];
+                for (let i = 0; i < currentColumnCount; i++) {
+                    headers.push(String.fromCharCode(65 + i)); // A, B, C...
+                }
+                sheetData.push(headers);
+
+                // Данные
+                for (const row of currentTableData) {
+                    const r = [];
+                    for (let i = 0; i < currentColumnCount; i++) {
+                        r.push(row[i] || '');
+                    }
+                    sheetData.push(r);
+                }
+
+                const workbook = XLSX.utils.book_new();
+                const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+                // Настройка ширины колонок
+                const colWidths = [];
+                for (let i = 0; i < currentColumnCount; i++) {
+                    colWidths.push({ wch: 20 });
+                }
+                worksheet['!cols'] = colWidths;
+
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Данные');
+                XLSX.writeFile(workbook, 'таблица.xlsx');
+            }
+
+            // Обработчики событий
+            textInput.addEventListener('input', updateUI);
+            downloadBtn.addEventListener('click', downloadExcel);
+
+            // Инициализация
+            updateUI();
+
+            // Подсказка для примера
+            textInput.value = '';
+            updateUI();
+            textInput.placeholder = `Вставьте сюда любой текст...
+Например:
+Имя, Возраст, Город
+Анна, 25, Москва
+Пётр, 30, Питер
+
+Или через табуляцию / точку с запятой — определится автоматически`;
+        })();
+    </script>
+</body>
+</html>
